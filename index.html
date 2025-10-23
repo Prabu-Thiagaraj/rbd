@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBD Telephone Directory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Password Screen Styles */
+        .password-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .password-screen h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .password-screen p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .password-form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .password-input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .password-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .password-error {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .lock-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.visible {
+            display: block;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 30px;
+            border-radius: 8px;
+        }
+
+        .disclaimer h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .disclaimer p {
+            color: #856404;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .disclaimer ul {
+            color: #856404;
+            font-size: 0.9em;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .disclaimer li {
+            margin-bottom: 5px;
+        }
+        
+        .search-container {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 20px;
+        }
+        
+        .results-count {
+            text-align: center;
+            padding: 15px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .directory-list {
+            padding: 20px 30px 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .directory-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .directory-item:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .job-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info {
+            display: grid;
+            gap: 8px;
+        }
+        
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .contact-label {
+            font-weight: 500;
+            color: #495057;
+            min-width: 100px;
+        }
+        
+        .contact-value {
+            color: #212529;
+        }
+        
+        .phone-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .phone-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .directory-item {
+                padding: 15px;
+            }
+            
+            .contact-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .contact-label {
+                min-width: auto;
+            }
+
+            .disclaimer {
+                margin: 15px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Password Screen -->
+        <div class="password-screen" id="passwordScreen">
+            <div class="lock-icon">🔒</div>
+            <h1>RBD Telephone Directory</h1>
+            <p>This directory is password protected. Please enter the password to continue.</p>
+            <form class="password-form" onsubmit="checkPassword(event)">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    class="password-input" 
+                    placeholder="Enter password"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="password-button">Access Directory</button>
+                <div id="passwordError" class="password-error"></div>
+            </form>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="header">
+                <h1>📞 RBD Telephone Directory</h1>
+                <p>Last updated: 16 July 2025</p>
+            </div>
+
+            <div class="disclaimer">
+                <h3>⚠️ Important Disclaimer & Usage Guidelines</h3>
+                <p><strong>Privacy Notice:</strong> This directory contains personal contact information shared for community use only. By accessing this directory, you agree to:</p>
+                <ul>
+                    <li><strong>Use contacts responsibly</strong> - Only for legitimate service needs within the RBD community</li>
+                    <li><strong>Respect privacy</strong> - Do not share, distribute, or publish this information elsewhere</li>
+                    <li><strong>No spam or misuse</strong> - Do not use these contacts for marketing, solicitation, or harassment</li>
+                    <li><strong>Verify information</strong> - Contact details may change. Please verify before using</li>
+                    <li><strong>Report issues</strong> - If you find incorrect information or wish to be removed, contact the directory administrator</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Note:</strong> This directory is provided "as-is" without warranties. The directory maintainers are not responsible for the quality of services provided by listed contacts.</p>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by service (e.g., AC Repair, Plumber, Doctor...)">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+            
+            <div class="results-count" id="resultsCount"></div>
+            
+            <div class="directory-list" id="directoryList"></div>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSWORD = "14rbd";
+
+        function checkPassword(event) {
+            event.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (password === CORRECT_PASSWORD) {
+                document.getElementById('passwordScreen').style.display = 'none';
+                document.getElementById('mainContent').classList.add('visible');
+                sessionStorage.setItem('rbdAccess', 'granted');
+                initDirectory();
+            } else {
+                errorDiv.textContent = '❌ Incorrect password. Please try again.';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Check if already authenticated in this session
+        if (sessionStorage.getItem('rbdAccess') === 'granted') {
+            document.getElementById('passwordScreen').style.display = 'none';
+            document.getElementById('mainContent').classList.add('visible');
+            initDirectory();
+        }
+
+        function initDirectory() {
+            const directory = [
+                {"job": "AC Repair", "name": "Ramesh Rai", "phone": "+91 98450 65978", "referred": "98452 35087 (Anita)"},
+                {"job": "AC repair", "name": "Sandeep", "phone": "+91 97461 92794", "referred": "99001 94463 (Sweety)"},
+                {"job": "AC repair", "name": "", "phone": "+91 98867 47791", "referred": "80738 25556 (Alex)"},
+                {"job": "AC repair", "name": "Purushtom", "phone": "+91 99457 20737", "referred": "99861 88234 (Pushpa Chandar)"},
+                {"job": "Air cooler Electrician", "name": "Hanumantha", "phone": "+91 87479 89997", "referred": ""},
+                {"job": "Airport Taxi", "name": "Sampath", "phone": "+91 87488 78523", "referred": "96113 05738 (Rashi)"},
+                {"job": "Airport Taxi", "name": "Saravanan", "phone": "+91 78928 97358", "referred": "97415 41647 (Celine)"},
+                {"job": "Airport Taxi", "name": "Vasanth", "phone": "+91 99013 10159, +91 73497 21452", "referred": "72040 55664 (Srima)"},
+                {"job": "Airport Taxi", "name": "Prabhakar", "phone": "+91 81972 85900", "referred": "99720 06855 (Radhika)"},
+                {"job": "Acupressure treatment", "name": "Chaithanyam Wellness Center (RBD)", "phone": "+91 97393 94500", "referred": ""},
+                {"job": "A2 milk", "name": "Mathruka Organic Store", "phone": "+91 91489 83739", "referred": ""},
+                {"job": "Aluminium Window and Glass work", "name": "Ganesh", "phone": "+91 82175 51399", "referred": ""},
+                {"job": "Allergy Test", "name": "Dr Chandrasekara ChanRe Rheumatology, Rajaji Nagar", "phone": "080-4251 6699", "referred": "+91 98452 19668 (Ramakrishnan)"},
+                {"job": "Auto Driver", "name": "Manjunath", "phone": "+91 70228 63357", "referred": ""},
+                {"job": "Auto Driver (Daily pickup)", "name": "Pradeep", "phone": "+91 77600 80647", "referred": "87927 41796 (Raaji)"},
+                {"job": "Auto Driver (Daily pickup)", "name": "Kumar", "phone": "+91 97434 56108", "referred": "87927 41796 (Raaji)"},
+                {"job": "Basket ball coach", "name": "D5 sports", "phone": "+91 91135 03255", "referred": "95914 84176 (Sandhya)"},
+                {"job": "Battery repair (2 wheeler)", "name": "SM Battery", "phone": "+91 79751 09011", "referred": "97419 06585 (Murali)"},
+                {"job": "Biometric for kids", "name": "BBMP Jana Sevaka", "phone": "+91 80 4455 4455", "referred": ""},
+                {"job": "Broadband (You)", "name": "Nagaraj", "phone": "+91 89706 03081", "referred": "99001 94463 (Sweety)"},
+                {"job": "Bharatnatyam Dancer", "name": "Brinda", "phone": "+91 96861 46726", "referred": ""},
+                {"job": "Chartered Accountant", "name": "Kediaarpna", "phone": "+91 98453 77948", "referred": ""},
+                {"job": "Chartered Accountant", "name": "Agarwal Anup", "phone": "+91 98807 20093", "referred": ""},
+                {"job": "Chartered Accountant", "name": "Keerthan", "phone": "+91 76249 57601", "referred": ""},
+                {"job": "Carpenter", "name": "Ahmad", "phone": "+91 97383 01040", "referred": "82960 94856 (Vishnuraj)"},
+                {"job": "Carpenter", "name": "Senthil", "phone": "+91 98868 21749", "referred": ""},
+                {"job": "Carpenter", "name": "Rajappa", "phone": "+91 81979 11703", "referred": ""},
+                {"job": "Carpenter", "name": "Shanmugam", "phone": "+91 74839 12353", "referred": "88615 11165"},
+                {"job": "Carpenter", "name": "Vel murugan", "phone": "+91 97402 52773", "referred": "99805 43015 (Prabha)"},
+                {"job": "Carpenter", "name": "Harilal", "phone": "+91 98801 73770", "referred": ""},
+                {"job": "Carpenter", "name": "Mohan Lal", "phone": "+91 99452 65437", "referred": "99013 70029 (Vijaya)"},
+                {"job": "Car Hire", "name": "Suresh", "phone": "+91 80733 09040", "referred": ""},
+                {"job": "Car Hire", "name": "Yogesh", "phone": "+91 80505 24932", "referred": ""},
+                {"job": "Car Hire for elders", "name": "Priyanka Singh", "phone": "+91 80887 14210", "referred": ""},
+                {"job": "Carpenter + Mosquito Net", "name": "Muthu", "phone": "+91 84312 24777", "referred": ""},
+                {"job": "Cleaning", "name": "Prasad ℅ Fanatic company", "phone": "+91 81518 81744, +91 99025 39000, +91 87922 77236, +91 87222 72777", "referred": ""},
+                {"job": "Car mechanic", "name": "Babu", "phone": "+91 81509 12588", "referred": ""},
+                {"job": "Car dent and scratches removal", "name": "Kanaiah", "phone": "+91 78928 39706", "referred": ""},
+                {"job": "Car battery Mechanic", "name": "Marqoob", "phone": "+91 97311 77064, +91 93422 64645", "referred": ""},
+                {"job": "Car paint", "name": "Sardar", "phone": "+91 88844 81409", "referred": "Naveen (US)"},
+                {"job": "Car paint", "name": "Dinesh K G", "phone": "+91 99005 61111", "referred": "98454 50922 (Sujith)"},
+                {"job": "Car paint", "name": "Arif", "phone": "+91 74065 16881", "referred": "94820 40501 (Suchitrakumar)"},
+                {"job": "Car battery Jump start", "name": "Ahmed", "phone": "+91 97311 77064", "referred": "98459 03460 (Raghavendra)"},
+                {"job": "Car relocation", "name": "Dilsher Car carrier", "phone": "+91 97282 15444", "referred": ""},
+                {"job": "Cardiologist", "name": "Dr Sanjay", "phone": "+91 99025 55934", "referred": ""},
+                {"job": "Chimney service/gas stove/cook top/Microwave", "name": "Mallikarjuna Gowda", "phone": "+91 70222 92543", "referred": ""},
+                {"job": "Construction contract", "name": "Lingam", "phone": "+91 99860 04751", "referred": ""},
+                {"job": "Construction contract", "name": "Vijay", "phone": "+91 99805 08534", "referred": ""},
+                {"job": "Construction contract", "name": "Gawandi", "phone": "+91 99326 32468", "referred": ""},
+                {"job": "Construction, Painting", "name": "Ganesh (G2K Home)", "phone": "+91 95389 99535", "referred": ""},
+                {"job": "Coconut water", "name": "Vasanth", "phone": "+91 72596 82708", "referred": "98453 33676 (Bala)"},
+                {"job": "Coconut water", "name": "Sahadeva", "phone": "+91 99860 32972", "referred": "81974 10198 (Akanksha)"},
+                {"job": "Construction Material Dispoal", "name": "Yellappa", "phone": "+91 98455 54050", "referred": ""},
+                {"job": "Courier (Professional) Home pick up", "name": "", "phone": "+91 93792 74073, +91 63747 48163, +91 97407 16511", "referred": "94422 15512 (vasu)"},
+                {"job": "Crane Service", "name": "Rajeswari Crane Service", "phone": "+91 98869 42267", "referred": ""},
+                {"job": "Cycle repair", "name": "Srikanth", "phone": "+91 92417 02557", "referred": "98866 47945"},
+                {"job": "Cycle repair", "name": "Mohan", "phone": "+91 81840 00084", "referred": ""},
+                {"job": "Dermatalogist", "name": "Kritash Skin Care", "phone": "+91 96065 08396", "referred": "94810 48800 (Prajakti)"},
+                {"job": "Dentist", "name": "Dr Deepika @ RBD", "phone": "+91 95910 32946, +91 73493 69048", "referred": ""},
+                {"job": "Dentist", "name": "Smile Care", "phone": "+91 73493 69048", "referred": ""},
+                {"job": "Dentist", "name": "Smylife Dental Clinic", "phone": "+91 72595 78600", "referred": ""},
+                {"job": "Dentist", "name": "Dr Sumeet", "phone": "+91 96323 55922", "referred": ""},
+                {"job": "Dentist", "name": "Dr Abhishek Nayak SLV Dental Clinic, Haralur Road", "phone": "+91 80953 84902", "referred": ""},
+                {"job": "Dentist", "name": "Dr Chethan, HSR Braceport Dentistry", "phone": "+91 63648 56363", "referred": ""},
+                {"job": "Digital Marketing", "name": "Jerri Mathew", "phone": "+91 97390 32244", "referred": ""},
+                {"job": "Dialysis at Home", "name": "Renalyfe", "phone": "+91 87925 47494", "referred": ""},
+                {"job": "Driver (Acting)", "name": "Raju", "phone": "+91 97405 61200", "referred": ""},
+                {"job": "Driver", "name": "Abdul", "phone": "+91 98455 53800", "referred": ""},
+                {"job": "Driver", "name": "Prabhakar Car service", "phone": "+91 81972 85900", "referred": ""},
+                {"job": "Driver", "name": "Mahadev", "phone": "+91 99019 62127", "referred": "96861 01069 (Kirti)"},
+                {"job": "Driver (Ertiga or Innova)", "name": "Suresh", "phone": "+91 80733 09040", "referred": "96635 90264 (Padmini Dev)"},
+                {"job": "Dobhi/laundry", "name": "Mallesh", "phone": "+91 96863 59557", "referred": ""},
+                {"job": "Donation", "name": "Thilakavathi Snahashreya foundation", "phone": "+91 77958 32724", "referred": ""},
+                {"job": "Donation", "name": "Reema Sr @ Asha Bhavan", "phone": "+91 99265 06416", "referred": ""},
+                {"job": "Elder Care/assistant", "name": "Aya Care, BTM Layout", "phone": "+91 82818 77198", "referred": ""},
+                {"job": "E-khata", "name": "Spandhana Enterprises", "phone": "+91 82776 44865, +91 94817 87922", "referred": ""},
+                {"job": "E-khata", "name": "Arun", "phone": "+91 99169 52453", "referred": "97414 11220 (Ajay Korimilli)"},
+                {"job": "Electrician", "name": "Yogesh", "phone": "+91 88611 56453", "referred": ""},
+                {"job": "Electrician", "name": "Thangaraj", "phone": "+91 97383 41345, +91 90359 05348", "referred": "99450 95006 (Nima)"},
+                {"job": "Electrician", "name": "Rohit", "phone": "+91 91138 58026", "referred": ""},
+                {"job": "Electrician", "name": "Rajesh", "phone": "+91 84311 05005", "referred": "98452 03214 (Sushil)"},
+                {"job": "Electrician", "name": "Ajith", "phone": "+91 84948 92030", "referred": "96118 00617 (Deepa)"},
+                {"job": "Electrician", "name": "Victor", "phone": "+91 99457 04889", "referred": "95359 66662 (Prabu)"},
+                {"job": "Electrician", "name": "Rohit Singh", "phone": "+91 91138 58026", "referred": "96635 90264 (Padmini)"},
+                {"job": "Electrician", "name": "Laxman", "phone": "+91 87074 79125", "referred": "81974 10198 (Akanksha)"},
+                {"job": "Electrician", "name": "Deepak", "phone": "+91 97421 18366", "referred": "73497 59175 (Padma)"},
+                {"job": "Electrician and Plumbing", "name": "Debashis", "phone": "+91 76195 44780", "referred": ""},
+                {"job": "Electrician and Plumbing", "name": "Ranjit", "phone": "+91 89045 10809", "referred": ""},
+                {"job": "Elevator at home", "name": "Vinot H Kannan", "phone": "+91 96982 81472", "referred": ""},
+                {"job": "Elevator at home (PVE)", "name": "Senthil", "phone": "+91 75503 98666, +91 95000 28681", "referred": ""},
+                {"job": "ENT for kids", "name": "Punarjani", "phone": "+91 90360 74434", "referred": ""},
+                {"job": "ENT", "name": "Dr. Shermija", "phone": "+91 92434 34434", "referred": ""},
+                {"job": "ENT", "name": "Punarjani", "phone": "+91 90360 74434", "referred": ""},
+                {"job": "E-stamp paper & Notary", "name": "Alif Cyber Center (Doddakanahalli)", "phone": "+91 88920 71518", "referred": "95350 66662 (Prabu)"},
+                {"job": "E-stamp paper", "name": "Bellandur", "phone": "+91 99165 38156", "referred": ""},
+                {"job": "E-stamp paper", "name": "Mathew", "phone": "+91 82776 44865", "referred": ""},
+                {"job": "E-stamp paper", "name": "Ravi", "phone": "+91 99640 64453", "referred": ""},
+                {"job": "E-stamp paper", "name": "Bala Krishna", "phone": "+91 88844 29168", "referred": ""},
+                {"job": "Eye", "name": "Dr Srinivas", "phone": "080-49422000", "referred": "98800 43445 (Vasu)"},
+                {"job": "Food for donation (excess food)", "name": "Robin Hood Army", "phone": "+91 98459 57127 (Abhishek), +91 96860 95959 (Raj)", "referred": ""},
+                {"job": "Food", "name": "Jeev Cafe @ RBD Club", "phone": "+91 98459 04249", "referred": ""},
+                {"job": "Food", "name": "Agarwal Kitchen (Pure Veg)", "phone": "+91 92192 24163", "referred": "98866 47945 (Satakshi)"},
+                {"job": "Food and RO Water", "name": "Devi & Sreedhar @ RBD", "phone": "+91 81231 93869", "referred": ""},
+                {"job": "Fabricator", "name": "Shakthi", "phone": "+91 98451 14814", "referred": ""},
+                {"job": "Fabricator (Nets)", "name": "Vishwa", "phone": "+91 98452 48685", "referred": ""},
+                {"job": "Florist", "name": "Abdul", "phone": "+91 90355 10333", "referred": "90044 54520 (Rahul)"},
+                {"job": "Florist", "name": "Minhaz", "phone": "+91 95359 85032", "referred": "96635 90264 (Padmini)"},
+                {"job": "Florist", "name": "Classic", "phone": "+91 90084 07331, +91 82770 76195", "referred": ""},
+                {"job": "Forex", "name": "Manjunath Transcorp Forex", "phone": "+91 97413 03528", "referred": ""},
+                {"job": "Forex", "name": "Santhosh Weizman Forex", "phone": "+91 98454 34882", "referred": ""},
+                {"job": "Gardener", "name": "Girish", "phone": "+91 96061 54521", "referred": "97400 22102 (Radha)"},
+                {"job": "Gas stove repair", "name": "?", "phone": "+91 97318 33362", "referred": "94422 15512 (Vasu)"},
+                {"job": "Gastro Surgeon", "name": "Dr Lohith", "phone": "+91 80734 79146", "referred": ""},
+                {"job": "Gastro Intestinal", "name": "Dr Sharath Kumar", "phone": "+91 99013 01756", "referred": ""},
+                {"job": "General Physician", "name": "Dr Santosh", "phone": "+91 98459 85903", "referred": ""},
+                {"job": "Grocery", "name": "Aishwarya, RBR", "phone": "+91 96060 20790, +91 62387 32715", "referred": ""},
+                {"job": "Hair dress (Home visit)", "name": "", "phone": "+91 93422 55667", "referred": ""},
+                {"job": "Insurance (Health/Vehicle/Life)", "name": "Saleem", "phone": "+91 96067 95127", "referred": "98804 97755 (Hemanth)"},
+                {"job": "IFB repair", "name": "Vijay", "phone": "+91 90669 01046", "referred": ""},
+                {"job": "IFB repair", "name": "Shree Ranganatha Enterprise (Choodasandra)", "phone": "+91 99877 62211, +91 99455 29921", "referred": "93928 18318 (Zehra)"},
+                {"job": "Inverter", "name": "Pawana", "phone": "+91 70905 41234, +91 93530 53002", "referred": ""},
+                {"job": "Inverter", "name": "Anand", "phone": "+91 98802 84928", "referred": ""},
+                {"job": "Kathak Dancer", "name": "Jinny", "phone": "+91 95211 72488", "referred": ""},
+                {"job": "Keymaker", "name": "Ali", "phone": "+91 80502 33671", "referred": ""},
+                {"job": "Keymaker", "name": "Haider", "phone": "+91 81970 63341, +91 81717 70859", "referred": ""},
+                {"job": "Laptop repair", "name": "Pankaj ℅ Acme computers", "phone": "+91 93426 47925", "referred": "97428 51208 (Saurabh)"},
+                {"job": "Laundry", "name": "Arul", "phone": "+91 97392 78284", "referred": ""},
+                {"job": "Lawyer", "name": "Nijaguna", "phone": "+91 99802 55043", "referred": ""},
+                {"job": "Lawyer", "name": "Venkabo Rao", "phone": "+91 99455 18619", "referred": ""},
+                {"job": "Lawyer", "name": "Raunaq Chatterjee", "phone": "+91 70284 81137", "referred": ""},
+                {"job": "LIC Agent", "name": "Raghu", "phone": "+91 99007 44769", "referred": ""},
+                {"job": "Leather Upholstery", "name": "Waseem", "phone": "+91 93057 64701", "referred": "98454 50922 (Sujith)"},
+                {"job": "Leather Upholstery", "name": "Basavesh, HSR Layout", "phone": "+91 99004 04050, +91 97383 04050", "referred": "98802 85719 (Shashi)"},
+                {"job": "Mattress", "name": "Nazeer", "phone": "+91 81237 14511", "referred": ""},
+                {"job": "Mattress", "name": "Doddakanelli Furniture", "phone": "+91 70299 42428", "referred": ""},
+                {"job": "Mattress/Window Blinds", "name": "Kanhayalal Bothra", "phone": "+91 94485 62337", "referred": ""},
+                {"job": "Mosquito Net & Furniture repair", "name": "Lokesh", "phone": "+91 8152926684", "referred": ""},
+                {"job": "Microware repair", "name": "Shivakumar", "phone": "+91 89041 57624", "referred": "98801 01444 (Ryan Lobo)"},
+                {"job": "Mosquito Net", "name": "Venkatesh", "phone": "+91 80950 06850", "referred": ""},
+                {"job": "Milk Supply", "name": "Arvind", "phone": "+91 70197 90625", "referred": ""},
+                {"job": "Nurse for house visit", "name": "Pavithra", "phone": "+91 73532 45556", "referred": ""},
+                {"job": "Nurse for house visit", "name": "Sunanda @ Narayana Clinic", "phone": "+91 97416 23905", "referred": ""},
+                {"job": "NGO", "name": "Swami Vivekananda Social Trust Jagadish", "phone": "", "referred": ""},
+                {"job": "Orthopedics", "name": "Dr. Suresh at Mahaveer Clinic", "phone": "+91 96862 10539", "referred": ""},
+                {"job": "Orthopedics", "name": "Dr. Nataraj BNI", "phone": "+91 90359 75434", "referred": ""},
+                {"job": "Orthopedics", "name": "Dr. Prashanth Kalale", "phone": "+91 95133 79777, 080-46382352", "referred": "94422 15512 (Vasu)"},
+                {"job": "Orthopedics", "name": "Dr Chetan Nagaraj, Sagar, Jayanagar", "phone": "+91 93425 28302", "referred": "99456 85340 (Chandar)"},
+                {"job": "Paediatrician", "name": "Dr ??", "phone": "+91 73012 60260", "referred": "98807 78333 (Pinky)"},
+                {"job": "Paediatrician", "name": "Arvin Clinix", "phone": "+91 99968 95999", "referred": "98804 66400 (Riichaa)"},
+                {"job": "Painter", "name": "Sandeep", "phone": "+91 97401 48525", "referred": ""},
+                {"job": "Painter", "name": "Subhash", "phone": "+91 95908 81952", "referred": ""},
+                {"job": "Painter", "name": "Ashok Yadav", "phone": "+91 98459 76122", "referred": ""},
+                {"job": "Painter", "name": "Balan", "phone": "+91 90365 21798", "referred": ""},
+                {"job": "Painter", "name": "Jitendra", "phone": "+91 81471 17110", "referred": "98450 65587 (Purohit)"},
+                {"job": "Painter", "name": "Asif", "phone": "+91 98451 85995", "referred": "82960 94856 (Vishnuraj)"},
+                {"job": "Painter", "name": "Jayashankar", "phone": "+91 99457 67479", "referred": ""},
+                {"job": "Pigeon Nets", "name": "Rahul Nets", "phone": "+91 91006 03738", "referred": "88615 11165 (Priya)"},
+                {"job": "Plumber", "name": "Ankit Singh (RBD)", "phone": "+91 72041 64075", "referred": ""},
+                {"job": "Pump Repair, Submersible", "name": "Nayaz", "phone": "+91 93429 53594", "referred": ""},
+                {"job": "Pet - Dog Grooming", "name": "Easy Dog", "phone": "+91 76762 11741", "referred": ""},
+                {"job": "Pump repair", "name": "Raju", "phone": "+91 97312 96478", "referred": ""},
+                {"job": "Pump repair", "name": "Narayana Motors", "phone": "+91 96637 87052", "referred": "94490 58954 (CSR)"},
+                {"job": "Pump Repair", "name": "Venkatesh", "phone": "+91 97438 97078", "referred": "97411 99988 (Lakshmi)"},
+                {"job": "Pest control", "name": "Vasanth", "phone": "+91 98455 97918", "referred": "98807 78333 (Pinky)"},
+                {"job": "Pest Control", "name": "Eswar", "phone": "+91 80889 69257", "referred": ""},
+                {"job": "Pest Control", "name": "Satish", "phone": "+91 99455 90077", "referred": ""},
+                {"job": "Pest Control", "name": "Anil Kumar (Sunrise)", "phone": "+91 96205 10530", "referred": ""},
+                {"job": "Physio", "name": "Dr. Padmanabhan", "phone": "+91 72599 35969", "referred": ""},
+                {"job": "Physio", "name": "Dev Raksha Hospital", "phone": "+91 89710 66524", "referred": ""},
+                {"job": "Physio", "name": "Mrs. Dr. Tanveera", "phone": "+91 74060 52448", "referred": "74289 47171 (Abha)"},
+                {"job": "Physio", "name": "Dr Satish", "phone": "+91 89048 05539", "referred": ""},
+                {"job": "Physio", "name": "Dr. Ashaf at Curolive Multispeciality", "phone": "+91 98865 07410", "referred": ""},
+                {"job": "Physio", "name": "Hussain", "phone": "+91 99804 22410, +91 78923 02003", "referred": ""},
+                {"job": "Physio", "name": "Shankar", "phone": "+91 91082 29819", "referred": ""},
+                {"job": "Physio", "name": "Dr. Raja (℅ Hussain)", "phone": "+91 86100 33572", "referred": ""},
+                {"job": "Physo", "name": "Curolive (Belandur)", "phone": "+91 98865 07410", "referred": "81974 10198 (Akanksha)"},
+                {"job": "Physio", "name": "Dr Ruchika", "phone": "+91 97409 04435", "referred": "97399 09466"},
+                {"job": "Physio (Home Visit)", "name": "Dr. Muthukrishnan", "phone": "+91 98861 20116", "referred": ""},
+                {"job": "Physio (HSR Layout)", "name": "Dr. Ankith Kumar", "phone": "+91 74112 68528", "referred": ""},
+                {"job": "Physio", "name": "Dr. Pooja", "phone": "+91 73386 17677", "referred": ""},
+                {"job": "Puncture Shop", "name": "Saddam (near HP Petrol bunk)", "phone": "+91 82175 53287", "referred": "98861 02000 (Balaji)"},
+                {"job": "RBD Maingate security", "name": "-", "phone": "+91 95384 64304", "referred": ""},
+                {"job": "Reptile Rehabilitation Center", "name": "Avian", "phone": "+91 94496 42222", "referred": ""},
+                {"job": "Recycler", "name": "Srinivas", "phone": "+91 63665 54082", "referred": ""},
+                {"job": "RTO", "name": "Srikanth", "phone": "+91 93423 13947", "referred": "99456 85340 (Chandar)"},
+                {"job": "RO (Kent) Service", "name": "Vimosh", "phone": "+91 98804 80538", "referred": "98454 50922 (Sujith)"},
+                {"job": "RO (Kent) Service", "name": "Prashanth", "phone": "+91 96867 35875", "referred": "99013 70029 (Vijaya)"},
+                {"job": "RO water service", "name": "Ramamurthy", "phone": "+91 99801 30709", "referred": "99805 43015 (Prabha)"},
+                {"job": "RO water service", "name": "Nagaraj", "phone": "+91 90718 83328", "referred": "94900 84364 (Sreekanth)"},
+                {"job": "Salon/Beauty Service (Women)", "name": "Pinky", "phone": "+91 98807 78333", "referred": ""},
+                {"job": "Scrap dealer", "name": "Veerapan", "phone": "+91 99808 03476", "referred": ""},
+                {"job": "Snake", "name": "Abhi", "phone": "+91 89711 01215", "referred": ""},
+                {"job": "Snake", "name": "Mahesh", "phone": "+91 99169 68959", "referred": ""},
+                {"job": "Snake Rescue", "name": "-", "phone": "+91 89711 01215", "referred": ""},
+                {"job": "Snake Catcher & Rescue", "name": "Shuayb", "phone": "+91 99002 06859", "referred": "99456 85340 (Chandar)"},
+                {"job": "Snake catcher & Rescue", "name": "Jayaraj", "phone": "+91 93425 96704", "referred": "99456 85340 (Chandar)"},
+                {"job": "Snake Catcher & Rescue", "name": "Manjunath", "phone": "_91 99452 39337", "referred": "99456 85340 (Chandar)"},
+                {"job": "Solar panel issue", "name": "Shubhangi", "phone": "+91 95501 80048", "referred": ""},
+                {"job": "Solar panel installation", "name": "Vinay ℅ Unique Solar System", "phone": "+91 95972 31437", "referred": ""},
+                {"job": "Solar Panel", "name": "KTN Energy", "phone": "+91 83104 61041", "referred": ""},
+                {"job": "Solar panel", "name": "Daya", "phone": "+91 93412 57894", "referred": ""},
+                {"job": "Sofa", "name": "Rizwan", "phone": "+91 98866 51786", "referred": ""},
+                {"job": "Sump cleaning", "name": "Jaymal", "phone": "+91 91087 89592", "referred": ""},
+                {"job": "Sump cleaning", "name": "Shudhi", "phone": "+91 79089 45675", "referred": ""},
+                {"job": "Sump cleaning", "name": "GMS company", "phone": "+91 94492 21475", "referred": ""},
+                {"job": "Tailor - Ladies", "name": "Hephzibah Designer Boutique", "phone": "+91 90353 88242", "referred": ""},
+                {"job": "Tailor", "name": "Lulu", "phone": "+91 97317 97553", "referred": "8861511165 (Priya)"},
+                {"job": "Taxi Service", "name": "Mani", "phone": "+91 99805 05155", "referred": ""},
+                {"job": "Tax filing", "name": "Jay", "phone": "+91 99025 91380", "referred": ""},
+                {"job": "Tax filing", "name": "Keerthan", "phone": "+91 76249 57601", "referred": ""},
+                {"job": "Tax filing", "name": "Ravi", "phone": "+91 98451 39678", "referred": ""},
+                {"job": "Tent House - Chair/Table rent", "name": "Danam Tent House", "phone": "+91 78298 27595", "referred": ""},
+                {"job": "Television (TV) repair", "name": "Venkatesh", "phone": "+01 96207 69161", "referred": "73494 61161 (Ram)"},
+                {"job": "Television (TV) repair", "name": "Vasu", "phone": "+91 90368 57422", "referred": "94422 15512 (Vasu)"},
+                {"job": "Tiles Laying", "name": "Sudhakar Shetty", "phone": "+91 99802 22107", "referred": "98807 45390 (Jeevan)"},
+                {"job": "Thread mill service", "name": "Bala", "phone": "+91 99800 64365", "referred": "98450 65587 (Purohit)"},
+                {"job": "Towing Car", "name": "Omkar", "phone": "+91 89711 89743", "referred": ""},
+                {"job": "Towing Car", "name": "Vinayaka Car Towing", "phone": "+91 96861 11199", "referred": ""},
+                {"job": "Travels", "name": "Naresh ℅ Auriga Travels", "phone": "+91 99019 27696", "referred": ""},
+                {"job": "Travels", "name": "Vijay Chowdhary", "phone": "+91 96631 64014", "referred": ""},
+                {"job": "Tuition French", "name": "Jojan Alex (RBD)", "phone": "+91 98453 47254", "referred": ""},
+                {"job": "Tuition French", "name": "Janani", "phone": "+91 98807 43430", "referred": ""},
+                {"job": "Tuition Chemistry", "name": "Palak Jain", "phone": "+91 97248 99408", "referred": ""},
+                {"job": "Tuition Hindi (Online)", "name": "Vartani Tutorials", "phone": "+91 98863 72344", "referred": ""},
+                {"job": "Tuition Maths", "name": "Utsav", "phone": "+91 90085 36869", "referred": ""},
+                {"job": "Tuition Maths", "name": "Simran (DSR)", "phone": "+91 99020 22000", "referred": "99450 95006 (Nima)"},
+                {"job": "Tuition Maths", "name": "Rashmi (RBD)", "phone": "+91 99455 60290", "referred": "90044 54529 (Priyanka)"},
+                {"job": "Tumble Dry", "name": "Anil", "phone": "+91 96064 56871", "referred": ""},
+                {"job": "UPS service", "name": "Krishna", "phone": "+91 88921 83033, +91 99014 14858", "referred": ""},
+                {"job": "UPS setup", "name": "Aman power systems", "phone": "+91 94483 83108", "referred": ""},
+                {"job": "UPS service", "name": "Margoob SMS Battery Works", "phone": "+91 97311 77064", "referred": ""},
+                {"job": "UPS service", "name": "Pravesh Kumar", "phone": "+91 99000 00476", "referred": "81971 41787 (Eswar T)"},
+                {"job": "Urologist", "name": "Dr. Rajeev Bashetty Matoshree Clinic, HSR", "phone": "+91 96202 23336", "referred": ""},
+                {"job": "Veterinary Doctor", "name": "Dr. Chandramohan", "phone": "+91 90358 69829", "referred": ""},
+                {"job": "Vegetables", "name": "Raamavana Biofarms @ RBD", "phone": "+91 95386 96314", "referred": ""},
+                {"job": "Visa Service", "name": "Anil", "phone": "+91 88844 39632", "referred": ""},
+                {"job": "Visa Service/Travel", "name": "Falah Travel", "phone": "+91 99007 21957", "referred": ""},
+                {"job": "Water proofing", "name": "Prasanna", "phone": "+91 98440 42113", "referred": ""},
+                {"job": "Water Tanker", "name": "Venkatesh swamy", "phone": "+91 99723 72686", "referred": ""},
+                {"job": "Water Tanker", "name": "Halappa", "phone": "+91 98456 08103", "referred": "99160 52758 (Sid)"},
+                {"job": "Water softener", "name": "Rajkumar", "phone": "+91 96063 41103", "referred": ""},
+                {"job": "Water softener", "name": "Pradeep", "phone": "+91 96636 29300", "referred": "95817 17000 (Ramprasad)"},
+                {"job": "Washing Machine repair", "name": "Manoj Saroj", "phone": "+91 82392 02343", "referred": ""},
+                {"job": "Wellness Centre", "name": "Chaithanyam (RBD)", "phone": "+91 97393 94500", "referred": "97400 22102 (Radha)"},
+                {"job": "Windows solutions (ZEN UPVC)", "name": "Ramesh", "phone": "+91 99722 07007, +91 80 4114 0507", "referred": ""},
+                {"job": "Windows Mesh", "name": "Thomas", "phone": "+91 97420 47680", "referred": "98446 55533 (Suresh)"},
+                {"job": "Wheelchair rental", "name": "-", "phone": "+91 98441 56835", "referred": ""},
+                {"job": "Water motor (automatic) & UPS", "name": "Hegde", "phone": "+91 93412 23436", "referred": ""},
+                {"job": "Water motor (automatic)", "name": "Ramesh", "phone": "+91 96866 83866", "referred": ""},
+                {"job": "Washing Machine & dishwasher service", "name": "Robin", "phone": "+91 99641 46654", "referred": ""}
+            ];
+
+            const searchInput = document.getElementById('searchInput');
+            const directoryList = document.getElementById('directoryList');
+            const resultsCount = document.getElementById('resultsCount');
+
+            function renderDirectory(items) {
+                if (items.length === 0) {
+                    directoryList.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <h3>No results found</h3>
+                            <p>Try searching with different keywords</p>
+                        </div>
+                    `;
+                    resultsCount.textContent = '';
+                    return;
+                }
+
+                resultsCount.textContent = `Showing ${items.length} result${items.length !== 1 ? 's' : ''}`;
+
+                directoryList.innerHTML = items.map(item => `
+                    <div class="directory-item">
+                        <div class="job-title">${item.job}</div>
+                        <div class="contact-info">
+                            ${item.name ? `
+                                <div class="contact-row">
+                                    <span class="contact-label">Name:</span>
+                                    <span class="contact-value">${item.name}</span>
+                                </div>
+                            ` : ''}
+                            ${item.phone ? `
+                                <div class="contact-row">
+                                    <span class="contact-label">Phone:</span>
+                                    <span class="contact-value">
+                                        <a href="tel:${item.phone.split(',')[0].trim()}" class="phone-link">${item.phone}</a>
+                                    </span>
+                                </div>
+                            ` : ''}
+                            ${item.referred ? `
+                                <div class="contact-row">
+                                    <span class="contact-label">Referred by:</span>
+                                    <span class="contact-value">${item.referred}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function filterDirectory(query) {
+                const lowerQuery = query.toLowerCase().trim();
+                
+                if (!lowerQuery) {
+                    renderDirectory(directory);
+                    return;
+                }
+
+                const filtered = directory.filter(item => 
+                    item.job.toLowerCase().includes(lowerQuery)
+                );
+
+                renderDirectory(filtered);
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                filterDirectory(e.target.value);
+            });
+
+            // Initial render
+            renderDirectory(directory);
+        }
+    </script>
+</body>
+</html>
